@@ -8,6 +8,12 @@ sudo cat "network={ \
          psk="???" \
      }" >> /etc/wpa_supplicant/wpa_supplicant.conf
 1) enable ssh
+sudo raspi-config
 2) register dev computer public key
 3) install oracle-java8-jdk :
 sudo apt-get update && sudo apt-get install oracle-java8-jdk
+4) enable i2c
+sudo raspi-config
+5) install & test i2c
+ sudo apt-get install -y i2c-tools
+ i2cdetect -y 1
