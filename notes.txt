@@ -1,0 +1,13 @@
+default login:
+username=pi
+password=raspberry
+
+0) save wifi credentials
+sudo cat "network={ \
+         ssid="???" \
+         psk="???" \
+     }" >> /etc/wpa_supplicant/wpa_supplicant.conf
+1) enable ssh
+2) register dev computer public key
+3) install oracle-java8-jdk :
+sudo apt-get update && sudo apt-get install oracle-java8-jdk
