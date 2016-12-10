@@ -18,4 +18,6 @@ export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
 cd ${IOT_FOLDER};
 mvn clean install
 scp ${IOT_FOLDER}/target/iot*.jar pi@${PI_IP}:./sense
+scp ${IOT_FOLDER}/scripts/initPi.sh pi@${PI_IP}:.
+ssh pi@${PI_IP} "chmod gu+x ./initPi.sh" < /dev/null
 cd -;
