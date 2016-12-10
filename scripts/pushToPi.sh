@@ -20,4 +20,8 @@ mvn clean install
 scp ${IOT_FOLDER}/target/iot*.jar pi@${PI_IP}:./sense
 scp ${IOT_FOLDER}/scripts/initPi.sh pi@${PI_IP}:.
 ssh pi@${PI_IP} "chmod gu+x ./initPi.sh" < /dev/null
+
+if [ $1 == "run" ]; then
+    ssh pi@${PI_IP} "./initPi.sh" < /dev/null
+fi
 cd -;
