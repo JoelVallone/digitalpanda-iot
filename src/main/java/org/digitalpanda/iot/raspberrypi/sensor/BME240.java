@@ -125,7 +125,6 @@ public class BME240 {
             i2c = I2CFactory.getInstance(I2CBus.BUS_0);
             device = i2c.getDevice(BME280_I2C_DEVICE_ADDR);
             chipId = device.read(BME280_REGISTER_CHIP_ID);
-            System.out.println("BME280" + " chip ID = " + chipId);
 
             //load calibration values
             // Read && convert the trimming temperature coefficients

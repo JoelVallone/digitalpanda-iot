@@ -10,7 +10,7 @@ trap ctrl_c INT
 
 function ctrl_c() {
     echo "Stopping services"
-    pkill cd - || true;
+    cd - || true;
     exit 0;
 }
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
