@@ -3,7 +3,7 @@ username=pi
 password=raspberry
 
 -1)
-  a) indentify sd card (/dev/{mmcbk0.*|sdd.*}
+  a) identify sd card (df -h /dev/{mmcbk0.*|sdd.*}
   b) unmount sd card voulmes (unmount /dev/???)
   c) copy uncompressed OS image (might take a few minutes) ex: sudo dd bs=4M if=2016-11-25-raspbian-jessie.img of=/dev/sdd
 

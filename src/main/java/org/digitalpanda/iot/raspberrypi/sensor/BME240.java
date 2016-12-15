@@ -25,9 +25,7 @@ public class BME240 {
     public static final byte BME280_REGISTER_TEMP_DATA = (byte) 0xFA;
     public static final byte BME280_REGISTER_HUMIDITY_DATA = (byte) 0xFD;
 
-    private double temperatureInDegreeCelsius;
-    private double humidityInPercent;
-    private double pressureInHpa;
+    private BME240Data bme240Data;
     private I2CBus i2c;
     private I2CDevice device;
     private int[] dig_T, dig_P, dig_H;
@@ -35,13 +33,13 @@ public class BME240 {
     private int chipId;
 
     public BME240(){
-        initialized = tryInitialize();
+        this.initialized = false;
     }
 
-    public void fetchAndComputeValues() throws IOException{
+    public BME240Data fetchAndComputeValues() throws IOException{
         if(!initialized){
-            if(!tryInitialize()){
-                return;
+            if(!initialize()){
+                return null;
             }
         }
         // Select control humidity register
@@ -77,7 +75,7 @@ public class BME240 {
         double var2 = ((((double)adc_t) / 131072.0 - ((double)dig_T[0]) / 8192.0) *
                 (((double)adc_t)/131072.0 - ((double)dig_T[0])/8192.0)) * ((double)dig_T[2]);
         double t_fine = (long)(var1 + var2);
-        temperatureInDegreeCelsius = (var1 + var2) / 5120.0;
+        double temperatureInDegreeCelsius = (var1 + var2) / 5120.0;
 
         // Pressure offset calculations
         var1 = ((double)t_fine / 2.0) - 64000.0;
@@ -90,7 +88,7 @@ public class BME240 {
         p = (p - (var2 / 4096.0)) * 6250.0 / var1;
         var1 = ((double) dig_P[8]) * p * p / 2147483648.0;
         var2 = p * ((double) dig_P[7]) / 32768.0;
-        pressureInHpa = (p + (var1 + var2 + ((double)dig_P[6])) / 16.0) / 100;
+        double pressureInHpa = (p + (var1 + var2 + ((double)dig_P[6])) / 16.0) / 100;
 
         // Humidity offset calculations
         double var_H = (((double)t_fine) - 76800.0);
@@ -98,27 +96,22 @@ public class BME240 {
         double humidity = var_H * (1.0 -  dig_H[0] * var_H / 524288.0);
         if(humidity > 100.0) { humidity = 100.0;
         }else if(humidity < 0.0) {  humidity = 0.0;  }
-        humidityInPercent = humidity;
+        double humidityInPercent = humidity;
+
+        this.bme240Data = new BME240Data(temperatureInDegreeCelsius, pressureInHpa, humidityInPercent);
+        return this.bme240Data;
     }
 
     public int getChipId(){
         return chipId;
     }
 
-    public double getTemperatureInDegreeCelsius(){
-        return temperatureInDegreeCelsius;
+    public BME240Data getLastRecord(){
+        return this.bme240Data;
     }
 
-    public double getHumidityInPercent(){
-        return humidityInPercent;
 
-    }
-
-    public double getPressureInhPa(){
-        return pressureInHpa;
-    }
-
-    private boolean tryInitialize(){
+    public boolean initialize(){
         boolean initialized = true;
         try {
             //connect to device
@@ -145,12 +138,13 @@ public class BME240 {
             preProcessTrimmingDigits_H(dig_H, buffer);
 
         } catch (I2CFactory.UnsupportedBusNumberException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             initialized = false;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
             initialized = false;
         }
+        this.initialized = initialized;
         return initialized;
     }
 
