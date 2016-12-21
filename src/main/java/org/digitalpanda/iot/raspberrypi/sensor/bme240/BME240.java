@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.raspberrypi.sensor;
+package org.digitalpanda.iot.raspberrypi.sensor.bme240;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
@@ -8,22 +8,22 @@ import java.io.IOException;
 
 public class BME240 {
 
-    public static final int BME280_I2C_DEVICE_ADDR = 0x77;
+    private static final int BME280_I2C_DEVICE_ADDR = 0x77;
 
     //Trimming parameter registers
-    public static final byte BME280_REGISTER_DIG_T1 = (byte) 0x88;
-    public static final byte BME280_REGISTER_DIG_P1 = (byte) 0x8E;
-    public static final byte BME280_REGISTER_DIG_H1 = (byte) 0xA1;
-    public static final byte BME280_REGISTER_DIG_H2 = (byte) 0xE1;
+    private static final byte BME280_REGISTER_DIG_T1 = (byte) 0x88;
+    private static final byte BME280_REGISTER_DIG_P1 = (byte) 0x8E;
+    private static final byte BME280_REGISTER_DIG_H1 = (byte) 0xA1;
+    private static final byte BME280_REGISTER_DIG_H2 = (byte) 0xE1;
 
     //data registers
-    public static final byte BME280_REGISTER_CHIP_ID = (byte) 0xD0;
-    public static final byte BME280_REGISTER_CONTROL_HUM = (byte) 0xF2;
-    public static final byte BME280_REGISTER_CONTROL = (byte) 0xF4;
-    public static final byte BME280_REGISTER_CONFIG = (byte) 0xF5;
-    public static final byte BME280_REGISTER_PRESSURE_DATA = (byte) 0xF7;
-    public static final byte BME280_REGISTER_TEMP_DATA = (byte) 0xFA;
-    public static final byte BME280_REGISTER_HUMIDITY_DATA = (byte) 0xFD;
+    private static final byte BME280_REGISTER_CHIP_ID = (byte) 0xD0;
+    private static final byte BME280_REGISTER_CONTROL_HUM = (byte) 0xF2;
+    private static final byte BME280_REGISTER_CONTROL = (byte) 0xF4;
+    private static final byte BME280_REGISTER_CONFIG = (byte) 0xF5;
+    private static final byte BME280_REGISTER_PRESSURE_DATA = (byte) 0xF7;
+    private static final byte BME280_REGISTER_TEMP_DATA = (byte) 0xFA;
+    private static final byte BME280_REGISTER_HUMIDITY_DATA = (byte) 0xFD;
 
     private BME240Data bme240Data;
     private I2CBus i2c;

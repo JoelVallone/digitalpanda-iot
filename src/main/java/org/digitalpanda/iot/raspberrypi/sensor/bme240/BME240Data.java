@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.raspberrypi.sensor;
+package org.digitalpanda.iot.raspberrypi.sensor.bme240;
 
 public class BME240Data {
 
@@ -7,7 +7,7 @@ public class BME240Data {
     private double humidity_percent;
     private long timestamp_ms;
 
-    public BME240Data(double temperature_c, double pressure_hpa, double humidity_percent) {
+    BME240Data(double temperature_c, double pressure_hpa, double humidity_percent) {
         this.timestamp_ms = System.currentTimeMillis();
         this.temperature_c = temperature_c;
         this.pressure_hpa = pressure_hpa;
