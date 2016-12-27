@@ -7,7 +7,7 @@ public class BME240Data {
     private double humidity_percent;
     private long timestamp_ms;
 
-    BME240Data(double temperature_c, double pressure_hpa, double humidity_percent) {
+    public BME240Data(double temperature_c, double pressure_hpa, double humidity_percent) {
         this.timestamp_ms = System.currentTimeMillis();
         this.temperature_c = temperature_c;
         this.pressure_hpa = pressure_hpa;

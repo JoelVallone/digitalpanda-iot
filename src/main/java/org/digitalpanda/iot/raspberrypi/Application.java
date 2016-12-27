@@ -13,15 +13,16 @@ import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Application {
 
-    private final String targetRestEndpoint;
+    private String targetRestEndpoint;
     private final Gson gsonSerializer;
     private final HttpClient httpClient;
     private final BME240 sensorTPH;
-    private final String sensorLocation;
+    private String sensorLocation;
 
     public static void main(String...args) {
         (new Application()).start();
@@ -29,7 +30,9 @@ public class Application {
 
     private Application(){
         this.targetRestEndpoint = System.getenv("TARGET_REST_ENDPOINT");
+        if(targetRestEndpoint == null) targetRestEndpoint = "http://localhost:8080/sensor";
         this.sensorLocation = System.getenv("SENSOR_LOCATION");
+        if(sensorLocation == null) sensorLocation = "indoor";
         this.gsonSerializer = (new GsonBuilder()).create();
         this.httpClient = new HttpClient();
         this.sensorTPH = new BME240();
@@ -40,7 +43,7 @@ public class Application {
         while(true){
             try {
                 transmitToRestEndpoint(fetchAndDisplayMeasuresFromSensor());
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -53,6 +56,12 @@ public class Application {
         }else{
             System.out.println(System.getenv("TARGET_REST_ENDPOINT = " + targetRestEndpoint));
         }
+        if (sensorLocation == null || sensorLocation.length() == 0) {
+            System.err.println("environment variable SENSOR_LOCATION not set" );
+            return false;
+        }else{
+            System.out.println(System.getenv("SENSOR_LOCATION = " + targetRestEndpoint));
+        }
         try {
             this.httpClient.start();
         } catch (Exception e) {
@@ -60,11 +69,13 @@ public class Application {
             return false;
         }
         System.out.println(">,Time[ms],Temperature[C],Pressure[hPa],Humidity[%]");
-        return sensorTPH.initialize();
+        //return sensorTPH.initialize();
+        return true;
     }
 
-    private SensorMeasures fetchAndDisplayMeasuresFromSensor() throws IOException {
-        BME240Data tphSensorData = this.sensorTPH.fetchAndComputeValues();
+    private List<SensorMeasures> fetchAndDisplayMeasuresFromSensor() throws IOException {
+        BME240Data tphSensorData = new BME240Data(24.0,750.0,65.0);
+        //BME240Data tphSensorData = this.sensorTPH.fetchAndComputeValues();
         System.out.printf(">,%d,%.2f,%.2f,%.2f%n",
                 tphSensorData.getTimestamp_ms(),
                 tphSensorData.getTemperature_c(),
@@ -73,16 +84,16 @@ public class Application {
         return SensorDataMapper.create(tphSensorData, this.sensorLocation);
     }
 
-    private void transmitToRestEndpoint(SensorMeasures sensorData){
+    private void transmitToRestEndpoint(List<SensorMeasures> sensorData){
+        System.out.println("send to " + targetRestEndpoint + " POST: \n" + sensorData.toString());
         try {
             ContentResponse response =
                     this.httpClient.POST(this.targetRestEndpoint)
                             .header(HttpHeader.CONTENT_TYPE, "application/json")
-                            .content(new StringContentProvider(this.gsonSerializer.toJson(sensorData),
-                                    "utf-8"))
+                            .content(new StringContentProvider(this.gsonSerializer.toJson(sensorData)))
                             .timeout(500L, TimeUnit.MILLISECONDS)
                             .send();
-            response.getStatus();
+            System.out.println("response status code = " + response.getStatus());
         } catch (Exception e) {
             e.printStackTrace();
         }
