@@ -20,7 +20,7 @@ public class SensorDataMapper {
     public static List<SensorMeasures> append(List<SensorMeasures> sensorMeasures, BME240Data bme240Data, String location){
         if (sensorMeasures == null || bme240Data == null || location == null) throw new RuntimeException("Some of the input data were null");
         setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.HUMIDITY, bme240Data.getHumidity_percent());
-        setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.TEMPERATURE, bme240Data.getPressure_hpa());
+        setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.TEMPERATURE, bme240Data.getTemperature_c());
         setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.PRESSURE, bme240Data.getPressure_hpa());
         return  sensorMeasures;
     }
@@ -33,7 +33,7 @@ public class SensorDataMapper {
         SensorMeasures measures = sensorMeasuresList.stream()
                                     .filter((sensorMeasures) -> sensorMeasures.getSensorMeasureMetaData().getType().equals(type))
                                     .findFirst()
-                                    .get();
+                                    .orElse(null);
         List<SensorMeasure> measureList;
         if (measures == null){
             measureList = new ArrayList<>();
