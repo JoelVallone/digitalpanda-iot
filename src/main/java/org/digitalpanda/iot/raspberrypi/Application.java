@@ -43,8 +43,10 @@ public class Application {
         if(!this.init()) System.exit(1);
         while(true){
             try {
+                long startTime = System.currentTimeMillis();
                 transmitToRestEndpoint(fetchAndDisplayMeasuresFromSensor());
-                Thread.sleep(5000);
+                long sleepTime = 1000L - (System.currentTimeMillis() - startTime);
+                Thread.sleep(sleepTime > 0L ? sleepTime : 1L);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -70,13 +72,13 @@ public class Application {
             return false;
         }
         System.out.println(">,Time[ms],Temperature[C],Pressure[hPa],Humidity[%]");
-        //return sensorTPH.initialize();
-        return true;
+        return sensorTPH.initialize();
+        //return true;
     }
 
     private List<SensorMeasures> fetchAndDisplayMeasuresFromSensor() throws IOException {
-        BME240Data tphSensorData = new BME240Data(24.0,750.0,65.0);
-        //BME240Data tphSensorData = this.sensorTPH.fetchAndComputeValues();
+        //BME240Data tphSensorData = new BME240Data(24.0,750.0,65.0);
+        BME240Data tphSensorData = this.sensorTPH.fetchAndComputeValues();
         System.out.printf(">,%d,%.2f,%.2f,%.2f%n",
                 tphSensorData.getTimestamp_ms(),
                 tphSensorData.getTemperature_c(),
@@ -93,7 +95,7 @@ public class Application {
                     this.httpClient.POST(this.targetRestEndpoint)
                             .header(HttpHeader.CONTENT_TYPE, "application/json")
                             .content(new StringContentProvider(sensorDataJson))
-                            .timeout(500L, TimeUnit.MILLISECONDS)
+                            .timeout(1000L, TimeUnit.MILLISECONDS)
                             .send();
             if(response.getStatus() != HttpStatus.Code.OK.getCode() ){
                 System.out.println("response status code = " + response.getStatus());

@@ -115,7 +115,7 @@ public class BME240 {
         boolean initialized = true;
         try {
             //connect to device
-            i2c = I2CFactory.getInstance(I2CBus.BUS_0);
+            i2c = I2CFactory.getInstance(I2CBus.BUS_1);
             device = i2c.getDevice(BME280_I2C_DEVICE_ADDR);
             chipId = device.read(BME280_REGISTER_CHIP_ID);
 
