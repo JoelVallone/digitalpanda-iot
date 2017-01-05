@@ -4,9 +4,11 @@ package org.digitalpanda.iot.raspberrypi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.digitalpanda.backend.data.SensorMeasures;
-import org.digitalpanda.iot.raspberrypi.sensor.SensorDataMapper;
-import org.digitalpanda.iot.raspberrypi.sensor.bme240.BME240;
-import org.digitalpanda.iot.raspberrypi.sensor.bme240.BME240Data;
+import org.digitalpanda.iot.raspberrypi.sensor.Sensor;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorData;
+import org.digitalpanda.iot.raspberrypi.sensor.utils.SensorDataMapper;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorModel;
+import org.digitalpanda.iot.raspberrypi.sensor.utils.SensorFactory;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringContentProvider;
@@ -20,10 +22,13 @@ import java.util.concurrent.TimeUnit;
 public class Application {
 
     private String targetRestEndpoint;
+    private String sensorLocation;
+    private SensorModel sensorModel;
+
+
     private final Gson gsonSerializer;
     private final HttpClient httpClient;
-    private final BME240 sensorTPH;
-    private String sensorLocation;
+    private Sensor sensorTPH;
 
     public static void main(String...args) {
         (new Application()).start();
@@ -34,9 +39,9 @@ public class Application {
         if(targetRestEndpoint == null) targetRestEndpoint = "http://localhost:8080/sensor";
         this.sensorLocation = System.getenv("SENSOR_LOCATION");
         if(sensorLocation == null) sensorLocation = "indoor";
+        this.sensorModel = SensorModel.valueOf(System.getenv("SENSOR_MODEL"));
         this.gsonSerializer = (new GsonBuilder()).create();
         this.httpClient = new HttpClient();
-        this.sensorTPH = new BME240();
     }
 
     private void start(){
@@ -63,7 +68,13 @@ public class Application {
             System.err.println("environment variable SENSOR_LOCATION not set" );
             return false;
         }else{
-            System.out.println(System.getenv("SENSOR_LOCATION = " + targetRestEndpoint));
+            System.out.println(System.getenv("SENSOR_LOCATION = " + sensorLocation));
+        }
+        if (sensorModel == null ) {
+            System.err.println("environment variable SENSOR_MODEL not set" );
+            return false;
+        }else{
+            System.out.println(System.getenv("SENSOR_MODEL = " + sensorModel));
         }
         try {
             this.httpClient.start();
@@ -71,19 +82,15 @@ public class Application {
             e.printStackTrace();
             return false;
         }
-        System.out.println(">,Time[ms],Temperature[C],Pressure[hPa],Humidity[%]");
+
+        System.out.println(">," + (new SensorData(sensorModel)).csvHeader());
+        this.sensorTPH = SensorFactory.getSensor(sensorModel);
         return sensorTPH.initialize();
-        //return true;
     }
 
     private List<SensorMeasures> fetchAndDisplayMeasuresFromSensor() throws IOException {
-        //BME240Data tphSensorData = new BME240Data(24.0,750.0,65.0);
-        BME240Data tphSensorData = this.sensorTPH.fetchAndComputeValues();
-        System.out.printf(">,%d,%.2f,%.2f,%.2f%n",
-                tphSensorData.getTimestamp_ms(),
-                tphSensorData.getTemperature_c(),
-                tphSensorData.getPressure_hpa(),
-                tphSensorData.getHumidity_percent());
+        SensorData tphSensorData = this.sensorTPH.fetchAndComputeValues();
+        System.out.printf(">," + tphSensorData.csvData());
         return SensorDataMapper.create(tphSensorData, this.sensorLocation);
     }
 

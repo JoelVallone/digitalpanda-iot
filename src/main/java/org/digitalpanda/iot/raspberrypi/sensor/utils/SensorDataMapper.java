@@ -1,35 +1,36 @@
-package org.digitalpanda.iot.raspberrypi.sensor;
+package org.digitalpanda.iot.raspberrypi.sensor.utils;
 
 import org.digitalpanda.backend.data.SensorMeasure;
 import org.digitalpanda.backend.data.SensorMeasureType;
 import org.digitalpanda.backend.data.SensorMeasureMetaData;
 import org.digitalpanda.backend.data.SensorMeasures;
-import org.digitalpanda.iot.raspberrypi.sensor.bme240.BME240Data;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SensorDataMapper {
 
-    public static List<SensorMeasures> create(BME240Data bme240Data, String location){
-        if (bme240Data == null || location == null) throw new RuntimeException("Some of the input data were null");
+    public static List<SensorMeasures> create(SensorData sensorData, String location){
+        if (sensorData == null || location == null) throw new RuntimeException("Some of the input data were null");
         final List<SensorMeasures> measures = new ArrayList<>(3);
-        return append(measures, bme240Data,location);
+        return append(measures, sensorData,location);
     }
 
-    public static List<SensorMeasures> append(List<SensorMeasures> sensorMeasures, BME240Data bme240Data, String location){
-        if (sensorMeasures == null || bme240Data == null || location == null) throw new RuntimeException("Some of the input data were null");
-        setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.HUMIDITY, bme240Data.getHumidity_percent());
-        setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.TEMPERATURE, bme240Data.getTemperature_c());
-        setValue(sensorMeasures, location, bme240Data.getTimestamp_ms(), SensorMeasureType.PRESSURE, bme240Data.getPressure_hpa());
+    public static List<SensorMeasures> append(List<SensorMeasures> sensorMeasures, SensorData sensorData, String location){
+        if (sensorMeasures == null || sensorData == null || location == null) throw new RuntimeException("Some of the input data were null");
+        sensorData.getSensorModel().getAvailableMetrics().forEach(
+                sensorMeasureType -> setValue(  sensorMeasures,
+                                                location,
+                                                sensorMeasureType,
+                                                sensorData.getSensorData(sensorMeasureType)));
         return  sensorMeasures;
     }
 
     private static void setValue(List<SensorMeasures> sensorMeasuresList,
                                  String location,
-                                 long timestamp,
                                  SensorMeasureType type,
-                                 double value){
+                                 SensorMeasure sensorMeasure){
         SensorMeasures measures = sensorMeasuresList.stream()
                                     .filter((sensorMeasures) -> sensorMeasures.getSensorMeasureMetaData().getType().equals(type))
                                     .findFirst()
@@ -42,6 +43,6 @@ public class SensorDataMapper {
         }else{
             measureList = measures.getMeasures();
         }
-        measureList.add(new SensorMeasure(timestamp, value));
+        measureList.add(sensorMeasure);
     }
 }

@@ -1,12 +1,19 @@
-package org.digitalpanda.iot.raspberrypi.sensor.bme240;
+package org.digitalpanda.iot.raspberrypi.sensor.bme280;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import org.digitalpanda.backend.data.SensorMeasureType;
+import org.digitalpanda.iot.raspberrypi.sensor.Sensor;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorData;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorModel;
 
 import java.io.IOException;
 
-public class BME240 {
+/**
+ * Humidity, Temperature and pressure senor from Bosh
+ */
+public class BME280 implements Sensor {
 
     private static final int BME280_I2C_DEVICE_ADDR = 0x77;
 
@@ -25,18 +32,18 @@ public class BME240 {
     private static final byte BME280_REGISTER_TEMP_DATA = (byte) 0xFA;
     private static final byte BME280_REGISTER_HUMIDITY_DATA = (byte) 0xFD;
 
-    private BME240Data bme240Data;
+    private SensorData bme280Data;
     private I2CBus i2c;
     private I2CDevice device;
     private int[] dig_T, dig_P, dig_H;
     private boolean initialized;
     private int chipId;
 
-    public BME240(){
+    public BME280(){
         this.initialized = false;
     }
 
-    public BME240Data fetchAndComputeValues() throws IOException{
+    public SensorData fetchAndComputeValues() throws IOException{
         if(!initialized){
             if(!initialize()){
                 return null;
@@ -98,16 +105,19 @@ public class BME240 {
         }else if(humidity < 0.0) {  humidity = 0.0;  }
         double humidityInPercent = humidity;
 
-        this.bme240Data = new BME240Data(temperatureInDegreeCelsius, pressureInHpa, humidityInPercent);
-        return this.bme240Data;
+        this.bme280Data = (new SensorData(SensorModel.BME280))
+                .setSensorData(SensorMeasureType.TEMPERATURE, temperatureInDegreeCelsius)
+                .setSensorData(SensorMeasureType.PRESSURE, pressureInHpa)
+                .setSensorData(SensorMeasureType.HUMIDITY, humidityInPercent);
+        return this.bme280Data;
     }
 
     public int getChipId(){
         return chipId;
     }
 
-    public BME240Data getLastRecord(){
-        return this.bme240Data;
+    public SensorData getLastRecord(){
+        return this.bme280Data;
     }
 
 
