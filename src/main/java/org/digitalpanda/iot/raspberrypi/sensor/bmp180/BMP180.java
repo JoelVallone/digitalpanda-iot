@@ -3,17 +3,17 @@ package org.digitalpanda.iot.raspberrypi.sensor.bmp180;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
-import com.pi4j.system.SystemInfo;
+import org.digitalpanda.backend.data.SensorMeasureType;
 import org.digitalpanda.iot.raspberrypi.sensor.Sensor;
 import org.digitalpanda.iot.raspberrypi.sensor.SensorData;
+import org.digitalpanda.iot.raspberrypi.sensor.SensorModel;
 import org.digitalpanda.iot.raspberrypi.sensor.utils.EndianReaders;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 /**
  * Temperature and pressure senor from Bosh
+ * Initial source of the code: https://github.com/OlivierLD/raspberry-pi4j-samples/blob/6c8d1efd5ef4fc6e759db1e33a90eb65a0c4626f/I2C.SPI/src/i2c/sensor/BMP180.java
  */
 public class BMP180 implements Sensor{
     private final static EndianReaders.Endianness BMP180_ENDIANNESS = EndianReaders.Endianness.BIG_ENDIAN;
@@ -61,37 +61,11 @@ public class BMP180 implements Sensor{
     private I2CBus bus;
     private I2CDevice bmp180;
     private int mode = BMP180_OP_MODE_STANDARD;
+    private SensorData bmp180Data;
+    private boolean initialized;
 
-    public BMP180()
-    {
-        this(BMP180_I2C_DEVICE_ADDRESS);
-    }
-
-    public BMP180(int address)
-    {
-        try
-        {
-            // Get i2c bus
-            bus = I2CFactory.getInstance(I2CBus.BUS_1); // Depends on the RasPI version
-            if (verbose)
-                System.out.println("Connected to bus. OK.");
-
-            // Get device itself
-            bmp180 = bus.getDevice(address);
-            if (verbose)
-                System.out.println("Connected to device. OK.");
-
-            try { this.readCalibrationData(); }
-            catch (Exception ex)
-            { ex.printStackTrace(); }
-        }
-        catch (IOException e)
-        {
-            System.err.println(e.getMessage());
-        } catch (I2CFactory.UnsupportedBusNumberException e) {
-            e.printStackTrace();
-        }
-    }
+    public BMP180(){
+        this.initialized = false;}
 
     private int readU16(int register) throws Exception
     {
@@ -292,88 +266,66 @@ public class BMP180 implements Sensor{
         return p;
     }
 
-    private int standardSeaLevelPressure = 101325;
-
-    public void setStandardSeaLevelPressure(int standardSeaLevelPressure)
-    {
-        this.standardSeaLevelPressure = standardSeaLevelPressure;
-    }
-
-    public double readAltitude() throws Exception
-    {
-        // "Calculates the altitude in meters"
-        double altitude = 0.0;
-        float pressure = readPressure();
-        altitude = 44330.0 * (1.0 - Math.pow(pressure / standardSeaLevelPressure, 0.1903));
-        if (verbose)
-            System.out.println("DBG: Altitude = " + altitude);
-        return altitude;
-    }
-
     protected static void waitfor(long howMuch)
     {
         try { Thread.sleep(howMuch); } catch (InterruptedException ie) { ie.printStackTrace(); }
     }
 
-    public static void main(String[] args) throws I2CFactory.UnsupportedBusNumberException
-    {
-        final NumberFormat NF = new DecimalFormat("##00.00");
-        BMP180 sensor = new BMP180();
-        float press = 0;
-        float temp  = 0;
-        double alt  = 0;
-
-        try { press = sensor.readPressure(); }
-        catch (Exception ex)
-        {
-            System.err.println(ex.getMessage());
-            ex.printStackTrace();
-        }
-        sensor.setStandardSeaLevelPressure((int)press); // As we ARE at the sea level (in San Francisco).
-        try { alt = sensor.readAltitude(); }
-        catch (Exception ex)
-        {
-            System.err.println(ex.getMessage());
-            ex.printStackTrace();
-        }
-        try { temp = sensor.readTemperature(); }
-        catch (Exception ex)
-        {
-            System.err.println(ex.getMessage());
-            ex.printStackTrace();
-        }
-
-        System.out.println("Temperature: " + NF.format(temp) + " C");
-        System.out.println("Pressure   : " + NF.format(press / 100) + " hPa");
-        System.out.println("Altitude   : " + NF.format(alt) + " m");
-        // Bonus : CPU Temperature
-        try
-        {
-            System.out.println("CPU Temperature   :  " + SystemInfo.getCpuTemperature());
-            System.out.println("CPU Core Voltage  :  " + SystemInfo.getCpuVoltage());
-        }
-        catch (InterruptedException ie)
-        {
-            ie.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public boolean initialize() {
-        return false;
+        boolean initialized = true;
+        try {
+            // Get i2c bus
+            bus = I2CFactory.getInstance(I2CBus.BUS_1); // Depends on the RasPI version
+            if (verbose)
+                System.out.println("Connected to bus. OK.");
+
+            // Get device itself
+            bmp180 = bus.getDevice(BMP180_I2C_DEVICE_ADDRESS);
+            if (verbose)
+                System.out.println("Connected to device. OK.");
+
+            try { this.readCalibrationData(); }
+            catch (Exception ex)
+            { ex.printStackTrace(); }
+        } catch (IOException | I2CFactory.UnsupportedBusNumberException e) {
+            e.printStackTrace();
+            initialized =  false;
+        }
+        return this.initialized = initialized;
     }
 
     @Override
     public SensorData fetchAndComputeValues() throws IOException {
-        return null;
+        if(!initialized){
+            if(!initialize()){
+                return null;
+            }
+        }
+        double press = 0;
+        double temp  = 0;
+
+        try { press = this.readPressure(); }
+        catch (Exception ex)
+        {
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
+        }
+        try { temp = this.readTemperature(); }
+        catch (Exception ex)
+        {
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        this.bmp180Data = (new SensorData(SensorModel.BME280))
+                .setSensorData(SensorMeasureType.TEMPERATURE, temp)
+                .setSensorData(SensorMeasureType.PRESSURE, press / 100);
+        return this.bmp180Data;
     }
 
     @Override
     public SensorData getLastRecord() {
-        return null;
+        return bmp180Data;
     }
 }

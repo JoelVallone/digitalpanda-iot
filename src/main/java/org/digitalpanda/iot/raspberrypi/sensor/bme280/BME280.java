@@ -12,6 +12,7 @@ import java.io.IOException;
 
 /**
  * Humidity, Temperature and pressure senor from Bosh
+ * Initial source of the code: https://github.com/ControlEverythingCommunity/BME280/blob/master/Java/BME280.java
  */
 public class BME280 implements Sensor {
 
@@ -147,15 +148,11 @@ public class BME280 implements Sensor {
             device.read(BME280_REGISTER_DIG_H2, buffer, 0, dig_H.length -1);
             preProcessTrimmingDigits_H(dig_H, buffer);
 
-        } catch (I2CFactory.UnsupportedBusNumberException e) {
-            e.printStackTrace();
-            initialized = false;
-        } catch (IOException e) {
+        } catch (IOException | I2CFactory.UnsupportedBusNumberException e) {
             e.printStackTrace();
             initialized = false;
         }
-        this.initialized = initialized;
-        return initialized;
+        return this.initialized = initialized;
     }
 
     private void preProcessTrimmingDigits_TorP(int[] dig_TorP, byte[] buffer){
