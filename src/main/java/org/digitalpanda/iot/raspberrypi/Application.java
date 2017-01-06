@@ -56,7 +56,6 @@ public class Application {
     private boolean init(){
         this.configuration = Configuration.getInstance();
         System.out.println(configuration);
-        System.exit(0);
         try {
             this.httpClient.start();
         } catch (Exception e) {
@@ -71,7 +70,7 @@ public class Application {
 
     private List<SensorMeasures> fetchAndDisplayMeasuresFromSensor() throws IOException {
         SensorData tphSensorData = this.sensorTPH.fetchAndComputeValues();
-        System.out.printf(">," + tphSensorData.csvData());
+        System.out.println(">," + tphSensorData.csvData());
         return SensorDataMapper.create(tphSensorData, configuration.getValue(SENSOR_LOCATION));
     }
 
@@ -79,7 +78,6 @@ public class Application {
         try {
             String sensorDataJson = this.gsonSerializer.toJson(sensorData);
             String targetRestEndpoint = configuration.getValue(BACKEND_URL);
-            System.out.println("send to " + targetRestEndpoint + " POST: \n" + sensorDataJson);
             ContentResponse response =
                     this.httpClient.POST(targetRestEndpoint)
                             .header(HttpHeader.CONTENT_TYPE, "application/json")

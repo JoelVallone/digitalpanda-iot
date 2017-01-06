@@ -59,7 +59,11 @@ public class SensorData {
         DecimalFormat formatter = new DecimalFormat("#.##", DecimalFormatSymbols.getInstance( Locale.ENGLISH ));
         formatter.setRoundingMode( RoundingMode.DOWN );
         sensorModel.getAvailableMetrics().forEach(
-                sensorMeasureType ->  csvData.add(formatter.format(sensorData.get(sensorMeasureType).getMeasure()) + ""));
+                sensorMeasureType ->  {
+                    SensorMeasure measure = sensorData.get(sensorMeasureType);
+                    String dataStr = formatter.format(measure.getMeasure());
+                    csvData.add(dataStr + "");
+                });
 
         return String.join(",", csvData);
     }

@@ -318,7 +318,7 @@ public class BMP180 implements Sensor{
             ex.printStackTrace();
         }
 
-        this.bmp180Data = (new SensorData(SensorModel.BME280))
+        this.bmp180Data = (new SensorData(SensorModel.BMP180))
                 .setSensorData(SensorMeasureType.TEMPERATURE, temp)
                 .setSensorData(SensorMeasureType.PRESSURE, press / 100);
         return this.bmp180Data;

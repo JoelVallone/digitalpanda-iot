@@ -33,7 +33,14 @@ public class Configuration {
 
     @Override
     public String toString(){
-        return properties.toString();
+        return "CONFIGURATION: \n" +
+                " - from file : " + configFilePath + "\n\t"
+        + String.join("\n\t",
+                properties.entrySet()
+                        .stream()
+                        .map(p -> p.getKey() + "=" + p.getValue())
+                        .sorted()
+                        .collect(Collectors.toList()));
     }
 
     private Configuration(){
@@ -42,7 +49,6 @@ public class Configuration {
 
     private boolean loadConfiguration(){
         String configFilePath = getConfigFilePath();
-        System.out.println("Configuration file path : " + configFilePath);
         this.properties = new Properties();
         try {
             properties.load(
@@ -53,10 +59,12 @@ public class Configuration {
                         .filter( key -> key.isMandatory() &&
                                         !properties.containsKey(key.getName()))
                         .map(configurationKey -> configurationKey.getName())
+                        .sorted()
                         .collect(Collectors.toList());
             if(missingConfigKeys.size() != 0){
-                System.err.print("ERROR: Missing mandatory configuration entries : " +
+                System.err.println("ERROR: Missing mandatory configuration entries : " +
                                 String.join(" \n-> ", missingConfigKeys));
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,7 +74,7 @@ public class Configuration {
     }
 
     private static String getConfigFilePath(){
-        String configFilePath = System.getenv("configuration.file");
+        String configFilePath = System.getenv("CONFIGURATION_FILE");
         if(configFilePath != null) return configFilePath;
         configFilePath = System.getProperty("configuration.file");
         if(configFilePath != null) return configFilePath;
