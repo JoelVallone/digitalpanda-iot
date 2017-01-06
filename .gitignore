@@ -10,5 +10,6 @@ buildNumber.properties
 .idea
 datasheets
 *.iml
+raspberrypi*.properties
 
 2016-11-25-raspbian-jessie-lite.zip

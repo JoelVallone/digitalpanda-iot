@@ -27,7 +27,7 @@ sudo raspi-config
 3) change pi user password
 passwd
 
-4) register dev computer public key
+4) register dev computer public name
 cat > ~/.ssh/authorized_keys
 chmod 640 ~/.ssh/authorized_keys
 

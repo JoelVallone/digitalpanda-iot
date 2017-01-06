@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.digitalpanda.iot.raspberrypi.Configuration.ConfigurationKey.BACKEND_URL;
+import static org.digitalpanda.iot.raspberrypi.Configuration.ConfigurationKey.SENSOR_LOCATION;
+import static org.digitalpanda.iot.raspberrypi.Configuration.ConfigurationKey.SENSOR_MODEL;
+
 public class Application {
 
-    private String targetRestEndpoint;
-    private String sensorLocation;
-    private SensorModel sensorModel;
-
+    private Configuration configuration;
 
     private final Gson gsonSerializer;
     private final HttpClient httpClient;
@@ -35,11 +36,6 @@ public class Application {
     }
 
     private Application(){
-        this.targetRestEndpoint = System.getenv("TARGET_REST_ENDPOINT");
-        if(targetRestEndpoint == null) targetRestEndpoint = "http://localhost:8080/sensor";
-        this.sensorLocation = System.getenv("SENSOR_LOCATION");
-        if(sensorLocation == null) sensorLocation = "indoor";
-        this.sensorModel = SensorModel.valueOf(System.getenv("SENSOR_MODEL"));
         this.gsonSerializer = (new GsonBuilder()).create();
         this.httpClient = new HttpClient();
     }
@@ -58,31 +54,16 @@ public class Application {
         }
     }
     private boolean init(){
-        if (targetRestEndpoint == null || targetRestEndpoint.length() == 0) {
-            System.err.println("environment variable TARGET_REST_ENDPOINT not set" );
-            return false;
-        }else{
-            System.out.println(System.getenv("TARGET_REST_ENDPOINT = " + targetRestEndpoint));
-        }
-        if (sensorLocation == null || sensorLocation.length() == 0) {
-            System.err.println("environment variable SENSOR_LOCATION not set" );
-            return false;
-        }else{
-            System.out.println(System.getenv("SENSOR_LOCATION = " + sensorLocation));
-        }
-        if (sensorModel == null ) {
-            System.err.println("environment variable SENSOR_MODEL not set" );
-            return false;
-        }else{
-            System.out.println(System.getenv("SENSOR_MODEL = " + sensorModel));
-        }
+        this.configuration = Configuration.getInstance();
+        System.out.println(configuration);
+        System.exit(0);
         try {
             this.httpClient.start();
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
+        SensorModel sensorModel = SensorModel.valueOf(configuration.getValue(SENSOR_MODEL));
         System.out.println(">," + (new SensorData(sensorModel)).csvHeader());
         this.sensorTPH = SensorFactory.getSensor(sensorModel);
         return sensorTPH.initialize();
@@ -91,15 +72,16 @@ public class Application {
     private List<SensorMeasures> fetchAndDisplayMeasuresFromSensor() throws IOException {
         SensorData tphSensorData = this.sensorTPH.fetchAndComputeValues();
         System.out.printf(">," + tphSensorData.csvData());
-        return SensorDataMapper.create(tphSensorData, this.sensorLocation);
+        return SensorDataMapper.create(tphSensorData, configuration.getValue(SENSOR_LOCATION));
     }
 
     private void transmitToRestEndpoint(List<SensorMeasures> sensorData){
         try {
             String sensorDataJson = this.gsonSerializer.toJson(sensorData);
+            String targetRestEndpoint = configuration.getValue(BACKEND_URL);
             System.out.println("send to " + targetRestEndpoint + " POST: \n" + sensorDataJson);
             ContentResponse response =
-                    this.httpClient.POST(this.targetRestEndpoint)
+                    this.httpClient.POST(targetRestEndpoint)
                             .header(HttpHeader.CONTENT_TYPE, "application/json")
                             .content(new StringContentProvider(sensorDataJson))
                             .timeout(1000L, TimeUnit.MILLISECONDS)
