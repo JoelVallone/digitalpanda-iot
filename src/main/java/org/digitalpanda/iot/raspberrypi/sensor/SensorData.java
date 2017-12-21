@@ -61,7 +61,7 @@ public class SensorData {
         sensorModel.getAvailableMetrics().forEach(
                 sensorMeasureType ->  {
                     SensorMeasure measure = sensorData.get(sensorMeasureType);
-                    String dataStr = formatter.format(measure.getMeasure());
+                    String dataStr = formatter.format(measure.getValue());
                     csvData.add(dataStr + "");
                 });
 
