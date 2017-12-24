@@ -20,14 +20,23 @@ export CONFIGURATION_FILE="/home/pi/sense/configuration.properties"
 case "$1" in
   start)
     echo "Starting iot"
-    java -jar /home/pi/sense/iot*.jar &> /home/pi/sensor.log
+    java -jar /home/pi/sense/iot*.jar &> /home/pi/sensor.log &
     ;;
   stop)
     echo "Stopping iot"
     pkill -f ".*iot.*.jar";
     ;;
+  restart)
+    $0 stop
+    sleep 0.5
+    $0 start
+    ;;
+  status)
+    pgrep -f ".*iot.*.jar" &> /dev/null;
+    exit $?
+    ;;
   *)
-    echo "Usage: /etc/init.d/iot {start|stop}"
+    echo "Usage: /etc/init.d/iot {start|stop|restart|status}"
     exit 1
     ;;
 esac
