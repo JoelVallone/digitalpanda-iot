@@ -10,7 +10,6 @@ buildNumber.properties
 .idea
 datasheets
 *.iml
-config/
 
 2016-11-25-raspbian-jessie-lite.zip
 test/

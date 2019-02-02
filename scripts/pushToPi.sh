@@ -88,13 +88,13 @@ for i in ${DEPLOY_TARGETS[@]}; do
     ! isNodeId $i && continue
     IP=${PI_IP[$((${i} - 1))]};  HOSTNAME=${PI_HOSTNAME[$((${i} - 1))]}
     notify "DEPLOYING CODE ON : $HOSTNAME,$IP"
-    ssh pi@${IP} "[ -e ./iot.sh ] && ./iot.sh stop || true" < /dev/null
+    ssh pi@${IP} "[ -e ./iot.sh ] && sudo ./iot.sh stop || true" < /dev/null
     ssh pi@${IP} '[ -e ./sense ] && rm ./sense/*' < /dev/null
     ssh pi@${IP} 'mkdir -p ~/sense' < /dev/null
     scp ${IOT_FOLDER}/target/iot-0.1.0.jar pi@${IP}:./sense
     scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./sense/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
-    ssh pi@${IP} "chmod 755 ./iot.sh" < /dev/null
+    ssh pi@${IP} "chmod 755 ./iot.sh;sudo systemctl daemon-reload" < /dev/null
 done
 #ssh pi@${PI_IP} "ln -s ~/iot.sh /etc/init.d/iot && update-rc.d iot defaults" < /dev/null
 
@@ -102,6 +102,6 @@ if [ ${RUN_TARGET} != "none" ] && isNodeId ${RUN_TARGET}; then
     IP=${PI_IP[$((${RUN_TARGET}-1))]}
     trap "clean_exit ${IP}" INT
     notify "STARTING CODE ON : ${IP}"
-    ssh pi@${IP} "./iot.sh start" < "/dev/null"
+    ssh pi@${IP} "sudo service iot start" < "/dev/null"
 fi
 cd - &> "/dev/null";
