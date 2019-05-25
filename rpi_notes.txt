@@ -1,11 +1,20 @@
+With OS image: 2016-11-25-raspbian-jessie-lite.zip
+
 default login:
 username=pi
 password=raspberry
 
 -1)
   a) identify sd card (df -h /dev/{mmcbk0.*|sdd.*}
-  b) unmount sd card voulmes (unmount /dev/???)
-  c) copy uncompressed OS image (might take a few minutes) ex: sudo dd bs=4M if=2016-11-25-raspbian-jessie.img of=/dev/sdd
+  b) un-mount sd card volumes (umount /dev/???)
+  c) copy uncompressed OS image (might take a few minutes) ex: sudo dd bs=4M if=2016-11-25-raspbian-jessie-lite.img of=/dev/mmcblk0
+
+-0.5) setup keyboard layout
+sudo raspi-config
+ >Generic 105-key (Intl) PC
+ >German Switzerland
+ >German Switzerland - French Switzerland
+sudo reboot
 
 0) save wifi credentials
 sudo echo -e "network={\n\
@@ -39,4 +48,7 @@ sudo raspi-config
 
 7) install & test i2c
  sudo apt-get install -y i2c-tools
- i2cdetect -y 1
+ i2cdetect -y 1 #Should output at least one digit if a device is connected
+
+8) change hostname
+sudo raspi-config

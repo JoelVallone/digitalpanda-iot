@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+#set -x
+
 ################################################################################
 # DESCRIPTION: Build, deploy and run the iot code on a list of nodes
 ################################################################################
@@ -89,14 +92,14 @@ for i in ${DEPLOY_TARGETS[@]}; do
     IP=${PI_IP[$((${i} - 1))]};  HOSTNAME=${PI_HOSTNAME[$((${i} - 1))]}
     notify "DEPLOYING CODE ON : $HOSTNAME,$IP"
     ssh pi@${IP} "[ -e ./iot.sh ] && sudo ./iot.sh stop || true" < /dev/null
-    ssh pi@${IP} '[ -e ./sense ] && rm ./sense/*' < /dev/null
+    ssh pi@${IP} '[ -e ./sense ] && rm -f ./sense/*' || true < /dev/null
     ssh pi@${IP} 'mkdir -p ~/sense' < /dev/null
     scp ${IOT_FOLDER}/target/iot-0.1.0.jar pi@${IP}:./sense
     scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./sense/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
+    ssh pi@${PI_IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
     ssh pi@${IP} "chmod 755 ./iot.sh;sudo systemctl daemon-reload" < /dev/null
 done
-#ssh pi@${PI_IP} "ln -s ~/iot.sh /etc/init.d/iot && update-rc.d iot defaults" < /dev/null
 
 if [ ${RUN_TARGET} != "none" ] && isNodeId ${RUN_TARGET}; then
     IP=${PI_IP[$((${RUN_TARGET}-1))]}
