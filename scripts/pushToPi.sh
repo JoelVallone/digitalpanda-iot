@@ -11,7 +11,7 @@
 ################################################################################
 set -e
 SCRIPT_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-IOT_FOLDER="${SCRIPT_FOLDER}/.."
+IOT_FOLDER="${SCRIPT_FOLDER}/../iot-sensors-java"
 source ${IOT_FOLDER}/config/config.sh
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
 

@@ -5,7 +5,7 @@ username=pi
 password=raspberry
 
 -1)
-  a) identify sd card (df -h /dev/{mmcbk0.*|sdd.*}
+  a) identify sd card (df -h /dev/{mmcbk0.*|sdd.*} mmcblk0, mmcblk0p1
   b) un-mount sd card volumes (umount /dev/???)
   c) copy uncompressed OS image (might take a few minutes) ex: sudo dd bs=4M if=2016-11-25-raspbian-jessie-lite.img of=/dev/mmcblk0
 
@@ -18,9 +18,9 @@ sudo reboot
 
 0) save wifi credentials
 sudo echo -e "network={\n\
-     ssid="UPCFA3BE2B"\n\
-     psk="Wubsdax4sbnE"\n\
-}" >> /etc/wpa_supplicant/wpa_supplicant.conf
+ ssid="UPCFA3BE2B"\n\
+ psk="Wubsdax4sbnE"\n\
+ }" >> /etc/wpa_supplicant/wpa_supplicant.conf
 
 1) set static ip in /etc/dhcpd.conf:
 sudo echo -e "interface wlan0\n\
