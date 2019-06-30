@@ -1,6 +1,6 @@
 package org.digitalpanda.iot.panel
 
-object PanelActorsApp extends App{
+object PanelApp extends App{
   println("Instantiate panel actors")
 
   println("End of execution")

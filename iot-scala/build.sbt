@@ -1,4 +1,4 @@
-name := "akka-quickstart-scala"
+name := "iot-scala"
 
 version := "1.0"
 

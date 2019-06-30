@@ -11,7 +11,7 @@
 ################################################################################
 set -e
 SCRIPT_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-IOT_FOLDER="${SCRIPT_FOLDER}/../iot-sensors-java"
+IOT_FOLDER="${SCRIPT_FOLDER}/../iot-java"
 source ${IOT_FOLDER}/config/config.sh
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
 
@@ -94,7 +94,7 @@ for i in ${DEPLOY_TARGETS[@]}; do
     ssh pi@${IP} "[ -e ./iot.sh ] && sudo ./iot.sh stop || true" < /dev/null
     ssh pi@${IP} '[ -e ./sense ] && rm -f ./sense/*' || true < /dev/null
     ssh pi@${IP} 'mkdir -p ~/sense' < /dev/null
-    scp ${IOT_FOLDER}/target/iot-0.1.0.jar pi@${IP}:./sense
+    scp ${IOT_FOLDER}/target/iot-java-0.1.0.jar pi@${IP}:./sense
     scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./sense/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
     ssh pi@${PI_IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
