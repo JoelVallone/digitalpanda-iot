@@ -13,8 +13,8 @@ package object iot {
     val PRESSURE, TEMPERATURE, HUMIDITY = Value
   }
 
-  case class NewMeasure(requestId : Long, location: Location, measureType: MeasureType, timestamp: Timestamp,  value: Measure)
+  case class NewMeasures(requestId : Long, measures: Map[(Location, MeasureType), (Timestamp, Measure)])
 
-  case class MeasureQuery(requestId : Long, location: Location, measureType: MeasureType)
-  case class MeasureQueryResponse(requestId : Long, location: Location, measureType: MeasureType, timestamp: Option[Timestamp],  value: Option[Measure])
+  case class MeasureQuery(requestId : Long, targetMeasures : List[(Location, MeasureType)])
+  case class MeasureQueryResponse(requestId : Long, measures: Map[(Location, MeasureType), (Timestamp, Measure)])
 }
