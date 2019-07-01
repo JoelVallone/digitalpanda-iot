@@ -2,6 +2,7 @@ package org.digitalpanda.iot.panel
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Timers}
 import org.digitalpanda.iot._
+import org.digitalpanda.iot.raspberrypi.circuits.panel.PanelController
 
 import scala.concurrent.duration.FiniteDuration
 

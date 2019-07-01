@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.raspberrypi.circuits
+package org.digitalpanda.iot.raspberrypi.circuits.panel
 
 import com.pi4j.io.gpio.{Pin, RaspiPin}
 import org.digitalpanda.iot.raspberrypi.components.Diode

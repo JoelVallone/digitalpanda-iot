@@ -1,7 +1,6 @@
-package org.digitalpanda.iot.panel
+package org.digitalpanda.iot.raspberrypi.circuits.panel
 
 import org.digitalpanda.iot.MeasureType.MeasureType
-import org.digitalpanda.iot.raspberrypi.circuits.PanelDisplay
 import org.digitalpanda.iot.{Location, Measure, Timestamp}
 
 class PanelController(outdoorMetric : (Location, MeasureType),

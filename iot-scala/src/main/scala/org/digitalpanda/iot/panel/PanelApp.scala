@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import org.digitalpanda.iot.MeasureType
 import org.digitalpanda.iot.measure.aggregator.LatestMeasureAggregator
 import org.digitalpanda.iot.measure.source.CassandraDbSource
-import org.digitalpanda.iot.raspberrypi.circuits.PanelDisplay
+import org.digitalpanda.iot.raspberrypi.circuits.panel.{PanelController, PanelDisplay}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
