@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.panel
+package org.digitalpanda.iot.actors.panel
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Timers}
 import org.digitalpanda.iot._

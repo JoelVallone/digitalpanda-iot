@@ -1,9 +1,10 @@
-package org.digitalpanda.iot.panel
+package org.digitalpanda.iot.app
 
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import org.digitalpanda.iot.MeasureType
+import org.digitalpanda.iot.actors.panel.PanelActor
 import org.digitalpanda.iot.measure.aggregator.LatestMeasureAggregator
 import org.digitalpanda.iot.measure.source.CassandraDbSource
 import org.digitalpanda.iot.raspberrypi.circuits.panel.{PanelController, PanelDisplay}
