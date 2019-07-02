@@ -16,15 +16,15 @@
 #   both for shutdown and reboot
 # update-rc.d <your script> defaults
 
-export CONFIGURATION_FILE="/home/pi/sense/configuration.properties"
+export CONFIGURATION_FILE="/home/pi/iot/configuration.properties"
 case "$1" in
   start)
     echo "Starting iot"
-    java -jar /home/pi/sense/iot*.jar &> /home/pi/sensor.log &
+    java -jar /home/pi/iot/{{jarName}}.jar &> /home/pi/iot/{{jarName}.log &
     ;;
   stop)
     echo "Stopping iot"
-    pkill -f ".*iot.*.jar";
+    pkill -f ".*{{jarName}.jar";
     ;;
   restart)
     $0 stop
@@ -32,7 +32,7 @@ case "$1" in
     $0 start
     ;;
   status)
-    pgrep -f ".*iot.*.jar" &> /dev/null;
+    pgrep -f ".{{jarName}.jar" &> /dev/null;
     exit $?
     ;;
   *)

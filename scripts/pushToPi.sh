@@ -18,6 +18,9 @@ export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
 ################################################################################
 # HELPER FUNCTIONS #############################################################
 ################################################################################
+
+source ${SCRIPT_FOLDER}/template.sh
+
 function clean_exit() {
     notify "STOPPING CODE ON ${1}"
     ssh pi@${1} "[ -f iot.sh ] && ./iot.sh stop" < /dev/null || true
@@ -90,12 +93,14 @@ mvn clean install
 for i in ${DEPLOY_TARGETS[@]}; do
     ! isNodeId $i && continue
     IP=${PI_IP[$((${i} - 1))]};  HOSTNAME=${PI_HOSTNAME[$((${i} - 1))]}
+    JAR=${PI_JAR[$((${i} - 1))}; IOT_SCRIPT_CONFIG=PI_$((${i} - 1))_IOT_SCRIPT_CONFIG
+    processTemplate ${SCRIPT_FOLDER}/iot.sh.tmpl ${SCRIPT_FOLDER}/iot.sh "${!IOT_SCRIPT_CONFIG}"
     notify "DEPLOYING CODE ON : $HOSTNAME,$IP"
     ssh pi@${IP} "[ -e ./iot.sh ] && sudo ./iot.sh stop || true" < /dev/null
-    ssh pi@${IP} '[ -e ./sense ] && rm -f ./sense/*' || true < /dev/null
-    ssh pi@${IP} 'mkdir -p ~/sense' < /dev/null
-    scp ${IOT_FOLDER}/target/iot-java-0.1.0.jar pi@${IP}:./sense
-    scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./sense/configuration.properties
+    ssh pi@${IP} '[ -e ./iot ] && rm -f ./iot/*' || true < /dev/null
+    ssh pi@${IP} 'mkdir -p ~/iot' < /dev/null
+    scp ${IOT_FOLDER}/target/${JAR}.jar pi@${IP}:./iot
+    scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./iot/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
     ssh pi@${PI_IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
     ssh pi@${IP} "chmod 755 ./iot.sh;sudo systemctl daemon-reload" < /dev/null
