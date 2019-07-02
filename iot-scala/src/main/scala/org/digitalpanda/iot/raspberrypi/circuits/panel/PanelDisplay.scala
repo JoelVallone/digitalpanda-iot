@@ -6,7 +6,7 @@ import org.digitalpanda.iot.raspberrypi.components.Diode
 object PanelDisplay {
 
   def apply(): PanelDisplay =
-    new PanelDisplay(RaspiPin.GPIO_21, RaspiPin.GPIO_22)
+    new PanelDisplay(RaspiPin.GPIO_00, RaspiPin.GPIO_02)
 
   def apply(windowRedDiodeId: Pin, windowGreenDiodeId: Pin): PanelDisplay =
     new PanelDisplay(windowRedDiodeId, windowGreenDiodeId)

@@ -3,6 +3,7 @@ package org.digitalpanda.iot.app
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
+import com.pi4j.io.gpio.RaspiPin
 import org.digitalpanda.iot.MeasureType
 import org.digitalpanda.iot.actors.panel.PanelActor
 import org.digitalpanda.iot.measure.aggregator.LatestMeasureAggregator
@@ -36,7 +37,7 @@ object PanelApp extends App {
       new PanelController(
         ("outdoor", MeasureType.TEMPERATURE),
         ("server-room", MeasureType.TEMPERATURE),
-        PanelDisplay()
+        PanelDisplay(RaspiPin.GPIO_00, RaspiPin.GPIO_02)
       ),
       Duration.create(1000, TimeUnit.MILLISECONDS),
       Duration.create(250, TimeUnit.MILLISECONDS),
