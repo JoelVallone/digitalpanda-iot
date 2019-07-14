@@ -17,9 +17,12 @@ class PanelController(outdoorMetric : (Location, MeasureType),
     latestMeasures = measures
 
   def clockTick(): Unit = {
-
     updateWindowInfo()
+    panelDisplay.applyStateToDisplay()
+  }
 
+  def shutdown(): Unit = {
+    panelDisplay.shutdown()
     panelDisplay.applyStateToDisplay()
   }
 
@@ -27,6 +30,7 @@ class PanelController(outdoorMetric : (Location, MeasureType),
     val outdoorMeasure = latestMeasures.get(outdoorMetric)
     val indoorMeasure = latestMeasures.get(indoorMetric)
     val freshnessLowerBoundMillis = System.currentTimeMillis() - MetricFreshnessDelayMillis
+    //println(s"Panel controller: outdoorMeasure=$outdoorMeasure, indoorMeasure=$indoorMeasure")
     if (
       outdoorMeasure.isDefined && indoorMeasure.isDefined
         && outdoorMeasure.get._1 > freshnessLowerBoundMillis

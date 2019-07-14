@@ -33,6 +33,11 @@ class PanelDisplay (windowRedDiodeId: Pin,
     }
   }
 
+  def shutdown(): Unit =  {
+    windowRedDiode.targetDisabled()
+    windowGreenDiode.targetDisabled()
+  }
+
   def applyStateToDisplay(): Unit = {
     windowRedDiode.updateVoltage()
     windowGreenDiode.updateVoltage()

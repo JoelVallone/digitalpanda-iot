@@ -16,15 +16,15 @@
 #   both for shutdown and reboot
 # update-rc.d <your script> defaults
 
-export CONFIGURATION_FILE="/home/pi/iot/configuration.properties"
+export CONFIGURATION_FILE="/home/pi/iot-scala/configuration.properties"
 case "$1" in
   start)
     echo "Starting iot"
-    java -jar /home/pi/iot/{{jarName}}.jar &> /home/pi/iot/{{jarName}.log &
+    java -jar /home/pi/iot-scala/iot-scala*.jar &> /home/pi/iot-scala/app.log &
     ;;
   stop)
     echo "Stopping iot"
-    pkill -f ".*{{jarName}.jar";
+    pkill -f ".*iot-scala.*.jar";
     ;;
   restart)
     $0 stop
@@ -32,11 +32,11 @@ case "$1" in
     $0 start
     ;;
   status)
-    pgrep -f ".{{jarName}.jar" &> /dev/null;
+    pgrep -f ".*iot-scala.*.jar" &> /dev/null;
     exit $?
     ;;
   *)
-    echo "Usage: /etc/init.d/iot {start|stop|restart|status}"
+    echo "Usage: /etc/init.d/iot-scala {start|stop|restart|status}"
     exit 1
     ;;
 esac

@@ -32,16 +32,24 @@ class PanelActor(panelController: PanelController,
 
   override def receive: Receive = {
     case PullNewMeasure =>
-      if (!lastPullFinished) log.warning(s"Previous request $requestId not fulfilled")
-      lastPullFinished = false
+      if (lastRequestIdResponded != requestId) log.warning(s"Previous request $requestId not fulfilled")
       aggregator ! MeasureQuery(nextMeasureId(), panelController.targetMeasures)
 
-    case MeasureQueryResponse(_, measures) => panelController.setMeasures(measures)
+    case MeasureQueryResponse(requestIdResponse, measures) =>
+      panelController.setMeasures(measures)
+      lastRequestIdResponded = requestIdResponse
 
     case PanelClockTick => panelController.clockTick()
   }
 
-  private var lastPullFinished: Boolean = true
+
+  //TODO: Handle clean shutdown
+  override def postStop() : Unit = {
+    log.info(s"Shutdown display panel")
+    panelController.shutdown()
+  }
+
+  private var lastRequestIdResponded: Long = 0
 
   private var requestId: Long = 0
   def nextMeasureId() : Long = { requestId += 1; requestId }

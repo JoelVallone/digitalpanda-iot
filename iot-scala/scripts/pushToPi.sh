@@ -11,19 +11,16 @@
 ################################################################################
 set -e
 SCRIPT_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-IOT_FOLDER="${SCRIPT_FOLDER}/../iot-java"
-source ${IOT_FOLDER}/config/config.sh
+IOT_FOLDER="${SCRIPT_FOLDER}/.."
+source ${IOT_FOLDER}/../config/config.sh
 export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64";
 
 ################################################################################
 # HELPER FUNCTIONS #############################################################
 ################################################################################
-
-source ${SCRIPT_FOLDER}/template.sh
-
 function clean_exit() {
     notify "STOPPING CODE ON ${1}"
-    ssh pi@${1} "[ -f iot.sh ] && ./iot.sh stop" < /dev/null || true
+    ssh pi@${1} "[ -f iot-scala.sh ] && ./iot-scala.sh stop" < /dev/null || true
     cd - &> "/dev/null" || true;
     exit 0;
 }
@@ -88,28 +85,27 @@ done
 ################################################################################
 notify "COMPILING CODE"
 cd ${IOT_FOLDER};
-mvn clean install
+sbt clean assembly
 
 for i in ${DEPLOY_TARGETS[@]}; do
     ! isNodeId $i && continue
     IP=${PI_IP[$((${i} - 1))]};  HOSTNAME=${PI_HOSTNAME[$((${i} - 1))]}
-    JAR=${PI_JAR[$((${i} - 1))}; IOT_SCRIPT_CONFIG=PI_$((${i} - 1))_IOT_SCRIPT_CONFIG
-    processTemplate ${SCRIPT_FOLDER}/iot.sh.tmpl ${SCRIPT_FOLDER}/iot.sh "${!IOT_SCRIPT_CONFIG}"
     notify "DEPLOYING CODE ON : $HOSTNAME,$IP"
-    ssh pi@${IP} "[ -e ./iot.sh ] && sudo ./iot.sh stop || true" < /dev/null
-    ssh pi@${IP} '[ -e ./iot ] && rm -f ./iot/*' || true < /dev/null
-    ssh pi@${IP} 'mkdir -p ~/iot' < /dev/null
-    scp ${IOT_FOLDER}/target/${JAR}.jar pi@${IP}:./iot
-    scp ${IOT_FOLDER}/config/${HOSTNAME}.properties pi@${IP}:./iot/configuration.properties
-    scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
-    ssh pi@${PI_IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
-    ssh pi@${IP} "chmod 755 ./iot.sh;sudo systemctl daemon-reload" < /dev/null
+    ssh pi@${IP} "[ -e ./iot-scala.sh ] && sudo ./iot-scala.sh stop || true" < /dev/null
+    ssh pi@${IP} '[ -e ./iot-scala ] && rm -f ./iot-scala/*' || true < /dev/null
+    ssh pi@${IP} 'mkdir -p ~/iot-scala' < /dev/null
+    scp ${IOT_FOLDER}/target/scala-2.12/iot-scala-assembly-1.0.jar pi@${IP}:./iot-scala
+    scp ${IOT_FOLDER}/../config/${HOSTNAME}.properties pi@${IP}:./iot-scala/configuration.properties
+    scp ${IOT_FOLDER}/scripts/iot-scala.sh pi@${IP}:.
+    #ssh pi@${PI_IP} "sudo ln -fs ~/iot-scala.sh /etc/init.d/iot-scala && sudo update-rc.d iot-scala defaults" < /dev/null
+    #ssh pi@${IP} "chmod 755 ./iot-scala.sh;sudo systemctl daemon-reload" < /dev/null
+    ssh pi@${IP} "chmod 755 ./iot-scala.sh";
 done
 
 if [ ${RUN_TARGET} != "none" ] && isNodeId ${RUN_TARGET}; then
     IP=${PI_IP[$((${RUN_TARGET}-1))]}
     trap "clean_exit ${IP}" INT
     notify "STARTING CODE ON : ${IP}"
-    ssh pi@${IP} "sudo service iot start" < "/dev/null"
+    ssh pi@${IP} "sudo service iot-scala start" < "/dev/null"
 fi
 cd - &> "/dev/null";

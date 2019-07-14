@@ -47,7 +47,7 @@ sudo apt-get update && sudo apt-get install -y oracle-java8-jdk
 sudo raspi-config
 
 7) install & test i2c
- sudo apt-get install -y i2c-tools
+ sudo apt-get install -y i2c-tools wiringPi
  i2cdetect -y 1 #Should output at least one digit if a device is connected
 
 8) change hostname

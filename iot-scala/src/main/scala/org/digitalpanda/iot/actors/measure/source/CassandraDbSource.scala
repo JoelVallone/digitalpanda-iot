@@ -40,11 +40,10 @@ class CassandraDbSource(dbSession: Session,
     val measuresMap = dbSession
       .execute("SELECT * from sensor_measure_latest")
       .asScala
-      .map( row =>
-        (row.getString("location"), MeasureType.withName(row.getString("measure_type")))
-          -> (row.getLong("timestamp"), row.getDouble("value"))
-      )
-      .filter{ case (key, _) => targetMeasures.contains(key)}
+      .map( row => {
+        log.debug(row.toString)
+        (row.getString("location"), MeasureType.withName(row.getString("measure_type"))) -> (row.getTimestamp("timestamp").getTime, row.getDouble("value"))
+      })
       .toMap
     NewMeasures(requestId, measuresMap)
   }

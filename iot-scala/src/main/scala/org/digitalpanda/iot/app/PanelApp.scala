@@ -48,6 +48,7 @@ object PanelApp extends App {
   println("> Register shutdown hook")
   sys.addShutdownHook( () => {
     println("Shutting down panelApp actor system")
+    //TODO: Handle clean shutdown
     Await.result(system.terminate(), Duration(10, TimeUnit.SECONDS))
     println("panelApp end")
   })

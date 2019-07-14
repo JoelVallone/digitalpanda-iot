@@ -1,7 +1,5 @@
 package org.digitalpanda.iot.raspberrypi.components
 
-import java.util.concurrent.TimeUnit
-
 import com.pi4j.io.gpio.{GpioFactory, Pin, PinState}
 
 
@@ -29,9 +27,8 @@ class Diode(val gpioId: Pin, val pinName: String) {
 
   def updateVoltage(): Unit = {
     if (_targetBlink)
-      gpioPin.blink(250, TimeUnit.MILLISECONDS)
+      gpioPin.toggle()
     else {
-      gpioPin.blink(0, TimeUnit.MILLISECONDS)
       gpioPin.setState(_targetEnabled)
     }
   }
