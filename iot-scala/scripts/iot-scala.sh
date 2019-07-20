@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ### BEGIN INIT INFO
-# Provides:          iot
+# Provides:          iot-scala
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -19,11 +19,11 @@
 export CONFIGURATION_FILE="/home/pi/iot-scala/configuration.properties"
 case "$1" in
   start)
-    echo "Starting iot"
+    echo "Starting iot-scala"
     java -jar /home/pi/iot-scala/iot-scala*.jar &> /home/pi/iot-scala/app.log &
     ;;
   stop)
-    echo "Stopping iot"
+    echo "Stopping iot-scala"
     pkill -f ".*iot-scala.*.jar";
     ;;
   restart)

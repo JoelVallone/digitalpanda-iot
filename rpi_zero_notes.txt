@@ -19,10 +19,13 @@ sudo reboot
 0) save wifi credentials
 sudo echo -e "network={\n\
  ssid="UPCFA3BE2B"\n\
- psk="Wubsdax4sbnE"\n\
+ psk="???"\n\
  }" >> /etc/wpa_supplicant/wpa_supplicant.conf
 
-1) set static ip in /etc/dhcpd.conf:
+1) change hostname
+sudo raspi-config
+
+ignore) set static ip in /etc/dhcpd.conf:
 sudo echo -e "interface wlan0\n\
 \n\
 static ip_address=192.168.0.200/24\n\
@@ -50,5 +53,3 @@ sudo raspi-config
  sudo apt-get install -y i2c-tools wiringPi
  i2cdetect -y 1 #Should output at least one digit if a device is connected
 
-8) change hostname
-sudo raspi-config

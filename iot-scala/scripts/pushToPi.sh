@@ -97,8 +97,8 @@ for i in ${DEPLOY_TARGETS[@]}; do
     scp ${IOT_FOLDER}/target/scala-2.12/iot-scala-assembly-1.0.jar pi@${IP}:./iot-scala
     scp ${IOT_FOLDER}/../config/${HOSTNAME}.properties pi@${IP}:./iot-scala/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot-scala.sh pi@${IP}:.
-    #ssh pi@${PI_IP} "sudo ln -fs ~/iot-scala.sh /etc/init.d/iot-scala && sudo update-rc.d iot-scala defaults" < /dev/null
-    #ssh pi@${IP} "chmod 755 ./iot-scala.sh;sudo systemctl daemon-reload" < /dev/null
+    ssh pi@${IP} "sudo ln -fs ~/iot-scala.sh /etc/init.d/iot-scala && sudo update-rc.d iot-scala defaults" < /dev/null
+    ssh pi@${IP} "chmod 755 ./iot-scala.sh;sudo systemctl daemon-reload" < /dev/null
     ssh pi@${IP} "chmod 755 ./iot-scala.sh";
 done
 

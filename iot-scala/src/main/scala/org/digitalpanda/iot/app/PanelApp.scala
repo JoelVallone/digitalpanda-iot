@@ -37,7 +37,9 @@ object PanelApp extends App {
       new PanelController(
         ("outdoor", MeasureType.TEMPERATURE),
         ("server-room", MeasureType.TEMPERATURE),
-        PanelDisplay(RaspiPin.GPIO_00, RaspiPin.GPIO_02)
+        PanelDisplay(
+          windowRedDiodeId = RaspiPin.GPIO_29,
+          windowGreenDiodeId = RaspiPin.GPIO_28)
       ),
       Duration.create(1000, TimeUnit.MILLISECONDS),
       Duration.create(250, TimeUnit.MILLISECONDS),
