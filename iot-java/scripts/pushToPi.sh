@@ -97,7 +97,7 @@ for i in ${DEPLOY_TARGETS[@]}; do
     scp ${IOT_FOLDER}/target/iot-java-0.1.0.jar pi@${IP}:./sense
     scp ${IOT_FOLDER}/../config/${HOSTNAME}.properties pi@${IP}:./sense/configuration.properties
     scp ${IOT_FOLDER}/scripts/iot.sh pi@${IP}:.
-    ssh pi@${PI_IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
+    ssh pi@${IP} "sudo ln -fs ~/iot.sh /etc/init.d/iot && sudo update-rc.d iot defaults" < /dev/null
     ssh pi@${IP} "chmod 755 ./iot.sh;sudo systemctl daemon-reload" < /dev/null
 done
 

@@ -1,11 +1,14 @@
 package org.digitalpanda.iot.raspberrypi.circuits.panel
 
+import com.typesafe.scalalogging.Logger
 import org.digitalpanda.iot.MeasureType.MeasureType
 import org.digitalpanda.iot.{Location, Measure, Timestamp}
 
 class PanelController(outdoorMetric : (Location, MeasureType),
                       indoorMetric : (Location, MeasureType),
                       panelDisplay: PanelDisplay) {
+
+  private val logger = Logger(classOf[PanelController])
 
   val MetricFreshnessDelayMillis = 30000L
   val targetMeasures = List(outdoorMetric, indoorMetric)
@@ -30,7 +33,7 @@ class PanelController(outdoorMetric : (Location, MeasureType),
     val outdoorMeasure = latestMeasures.get(outdoorMetric)
     val indoorMeasure = latestMeasures.get(indoorMetric)
     val freshnessLowerBoundMillis = System.currentTimeMillis() - MetricFreshnessDelayMillis
-    //println(s"Panel controller: outdoorMeasure=$outdoorMeasure, indoorMeasure=$indoorMeasure")
+    logger.debug(s"Panel controller: outdoorMeasure=$outdoorMeasure, indoorMeasure=$indoorMeasure")
     if (
       outdoorMeasure.isDefined && indoorMeasure.isDefined
         && outdoorMeasure.get._1 > freshnessLowerBoundMillis

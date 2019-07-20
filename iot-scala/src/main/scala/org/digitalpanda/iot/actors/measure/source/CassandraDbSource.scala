@@ -41,7 +41,7 @@ class CassandraDbSource(dbSession: Session,
       .execute("SELECT * from sensor_measure_latest")
       .asScala
       .map( row => {
-        //log.info(row.toString)
+        log.debug(row.toString)
         (row.getString("location"), MeasureType.withName(row.getString("measure_type"))) -> (row.getTimestamp("timestamp").getTime, row.getDouble("value"))
       })
       .toMap

@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import com.pi4j.io.gpio.RaspiPin
+import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.Logger
 import org.digitalpanda.iot.MeasureType
 import org.digitalpanda.iot.actors.panel.PanelActor
 import org.digitalpanda.iot.measure.aggregator.LatestMeasureAggregator
@@ -14,48 +16,53 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 object PanelApp extends App {
+  
+  private val logger = Logger(classOf[PanelController])
+  val conf = ConfigFactory.load()
 
-  println("> Instantiate panelApp actors")
+  logger.info(s"PanelApp config: $conf")
+
+  logger.info("> Instantiate panelApp actors")
 
   val system: ActorSystem = ActorSystem("panelApp")
 
-  println(">> Measure aggregator")
+  logger.info(">> Measure aggregator")
   val measureAggregator  = system.actorOf(LatestMeasureAggregator.props(), "latestMeasuresAggregator")
 
-  println(">> Measure source from database")
+  logger.info(">> Measure source from database")
   system.actorOf(
     CassandraDbSource.props(
-      "192.168.0.102", 9042,
-      Duration.create(1000, TimeUnit.MILLISECONDS),
+      conf.getString("cassandra.contactpoint"), conf.getInt("cassandra.port"),
+      Duration.create(conf.getLong("panel.data.pull-period-millis"), TimeUnit.MILLISECONDS),
       measureAggregator
     ),
     "dbMeasureSource")
 
-  println(">> Panel")
+  logger.info(">> Panel")
   system.actorOf(
     PanelActor.props(
       new PanelController(
-        ("outdoor", MeasureType.TEMPERATURE),
-        ("server-room", MeasureType.TEMPERATURE),
+        (conf.getString("panel.data.window.out.name"), MeasureType.TEMPERATURE),
+        (conf.getString("panel.data.window.out.name"), MeasureType.TEMPERATURE),
         PanelDisplay(
           windowRedDiodeId = RaspiPin.GPIO_29,
           windowGreenDiodeId = RaspiPin.GPIO_28)
       ),
-      Duration.create(1000, TimeUnit.MILLISECONDS),
-      Duration.create(250, TimeUnit.MILLISECONDS),
+      dataRefreshPeriod = Duration.create(1000, TimeUnit.MILLISECONDS),
+      displayRefreshPeriod = Duration.create(conf.getLong("panel.display.refresh-period-millis"), TimeUnit.MILLISECONDS),
       measureAggregator
     ),
     "panelActor")
 
-  println("> Register shutdown hook")
+  logger.info("> Register shutdown hook")
   sys.addShutdownHook( () => {
-    println("Shutting down panelApp actor system")
+    logger.info("Shutting down panelApp actor system")
     //TODO: Handle clean shutdown
     Await.result(system.terminate(), Duration(10, TimeUnit.SECONDS))
-    println("panelApp end")
+    logger.info("panelApp end")
   })
 
-  println("> Wait for OS signals")
+  logger.info("> Wait for OS signals")
   while (true) Thread.sleep(1000L)
 
 }
