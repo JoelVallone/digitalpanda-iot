@@ -48,6 +48,11 @@ class CassandraDbSource(dbSession: Session,
     NewMeasures(requestId, measuresMap)
   }
 
+  override def postStop() : Unit = {
+    log.info(s"Shutdown Casandra db source - begin")
+    dbSession.close()
+    log.info(s"Shutdown Casandra db source - end")
+  }
 
 
 }

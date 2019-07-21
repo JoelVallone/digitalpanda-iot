@@ -27,6 +27,7 @@ class PanelController(outdoorMetric : (Location, MeasureType),
   def shutdown(): Unit = {
     panelDisplay.shutdown()
     panelDisplay.applyStateToDisplay()
+    logger.info("Display has been shut down")
   }
 
   def updateWindowInfo(): Unit = {

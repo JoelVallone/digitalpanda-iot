@@ -43,10 +43,10 @@ class PanelActor(panelController: PanelController,
   }
 
 
-  //TODO: Handle clean shutdown
   override def postStop() : Unit = {
-    log.info(s"Shutdown display panel")
+    log.info(s"Shutdown display panel - begin")
     panelController.shutdown()
+    log.info(s"Shutdown display panel - end")
   }
 
   private var lastRequestIdResponded: Long = 0
