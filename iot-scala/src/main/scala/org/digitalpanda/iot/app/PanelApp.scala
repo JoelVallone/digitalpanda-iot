@@ -48,7 +48,8 @@ object PanelApp extends App {
         indoorMetric = (conf.getString("panel.data.window.in.name"), MeasureType.TEMPERATURE),
         PanelDisplay(
           windowRedDiodeId = RaspiPin.GPIO_29,
-          windowGreenDiodeId = RaspiPin.GPIO_28)
+          windowGreenDiodeId = RaspiPin.GPIO_28),
+          metricFreshnessDelayMillis = 3 * conf.getLong("panel.data.pull-period-millis")
       ),
       dataRefreshPeriod = Duration.create(1000, TimeUnit.MILLISECONDS),
       displayRefreshPeriod = Duration.create(conf.getLong("panel.display.refresh-period-millis"), TimeUnit.MILLISECONDS),

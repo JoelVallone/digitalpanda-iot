@@ -6,11 +6,11 @@ import org.digitalpanda.iot.{Location, Measure, Timestamp}
 
 class PanelController(outdoorMetric : (Location, MeasureType),
                       indoorMetric : (Location, MeasureType),
-                      panelDisplay: PanelDisplay) {
+                      panelDisplay: PanelDisplay,
+                      metricFreshnessDelayMillis: Long) {
 
   private val logger = Logger(classOf[PanelController])
 
-  val MetricFreshnessDelayMillis = 30000L
   val targetMeasures = List(outdoorMetric, indoorMetric)
 
   private var latestMeasures : Map[(Location, MeasureType), (Timestamp, Measure)] = Map()
@@ -33,7 +33,7 @@ class PanelController(outdoorMetric : (Location, MeasureType),
   def updateWindowInfo(): Unit = {
     val outdoorMeasure = latestMeasures.get(outdoorMetric)
     val indoorMeasure = latestMeasures.get(indoorMetric)
-    val freshnessLowerBoundMillis = System.currentTimeMillis() - MetricFreshnessDelayMillis
+    val freshnessLowerBoundMillis = System.currentTimeMillis() - metricFreshnessDelayMillis
     logger.debug(s"Panel controller: outdoorMeasure=$outdoorMeasure, indoorMeasure=$indoorMeasure")
     if (
       outdoorMeasure.isDefined && indoorMeasure.isDefined
