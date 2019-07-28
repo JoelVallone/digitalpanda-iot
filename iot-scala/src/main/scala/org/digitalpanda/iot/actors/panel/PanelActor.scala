@@ -29,7 +29,6 @@ class PanelActor(panelController: PanelController,
   timers.startTimerWithFixedDelay(MeasurePull, PullNewMeasure, dataRefreshPeriod)
   timers.startTimerWithFixedDelay(PanelUpdate, PanelClockTick, displayRefreshPeriod)
 
-
   override def receive: Receive = {
     case PullNewMeasure =>
       if (lastRequestIdResponded != requestId) log.warning(s"Previous request $requestId not fulfilled")
@@ -41,7 +40,6 @@ class PanelActor(panelController: PanelController,
 
     case PanelClockTick => panelController.clockTick()
   }
-
 
   override def postStop() : Unit = {
     log.info(s"Shutdown display panel - begin")

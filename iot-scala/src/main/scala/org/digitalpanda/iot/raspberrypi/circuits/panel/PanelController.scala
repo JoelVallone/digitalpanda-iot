@@ -41,11 +41,11 @@ class PanelController(outdoorMetric : (Location, MeasureType),
         && indoorMeasure.get._1 > freshnessLowerBoundMillis
     )
       if (outdoorMeasure.get._2 > indoorMeasure.get._2) {
-        panelDisplay.setOpenWindow(false)
+        panelDisplay.targetOpenWindow(false)
       } else
-        panelDisplay.setOpenWindow(true)
+        panelDisplay.targetOpenWindow(true)
     else
-      panelDisplay.panicWindowState()
+      panelDisplay.targetPanicWindowState()
   }
 
 }

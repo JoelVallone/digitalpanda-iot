@@ -18,12 +18,12 @@ class PanelDisplay (windowRedDiodeId: Pin,
   private val windowRedDiode = new Diode(windowRedDiodeId, "windowRedDiode")
   private val windowGreenDiode = new Diode(windowGreenDiodeId, "windowGreenDiode")
 
-  def panicWindowState(): Unit = {
+  def targetPanicWindowState(): Unit = {
     windowGreenDiode.targetDisabled()
     windowRedDiode.targetBlink()
   }
 
-  def setOpenWindow(canOpenWindow: Boolean): Unit = {
+  def targetOpenWindow(canOpenWindow: Boolean): Unit = {
     if (canOpenWindow) {
       windowRedDiode.targetDisabled()
       windowGreenDiode.targetEnabled()
