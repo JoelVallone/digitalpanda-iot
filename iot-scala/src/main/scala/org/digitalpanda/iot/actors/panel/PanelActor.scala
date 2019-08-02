@@ -1,6 +1,6 @@
 package org.digitalpanda.iot.actors.panel
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Timers}
+import akka.actor.{Actor, ActorLogging, Props, Timers}
 import org.digitalpanda.iot._
 import org.digitalpanda.iot.raspberrypi.circuits.panel.PanelController
 
@@ -14,30 +14,19 @@ object PanelActor {
   case object PanelClockTick
 
   def props(panelController: PanelController,
-            dataRefreshPeriod: FiniteDuration,
-            displayRefreshPeriod: FiniteDuration,
-            aggregator: ActorRef) : Props =
-    Props(new PanelActor(panelController, dataRefreshPeriod, displayRefreshPeriod, aggregator))
+            displayRefreshPeriod: FiniteDuration) : Props =
+    Props(new PanelActor(panelController, displayRefreshPeriod))
 }
 
 class PanelActor(panelController: PanelController,
-                 dataRefreshPeriod: FiniteDuration,
-                 displayRefreshPeriod: FiniteDuration,
-                 aggregator: ActorRef) extends Actor with ActorLogging with Timers {
+                 displayRefreshPeriod: FiniteDuration)
+        extends Actor with ActorLogging with Timers {
   import PanelActor._
 
-  timers.startTimerWithFixedDelay(MeasurePull, PullNewMeasure, dataRefreshPeriod)
   timers.startTimerWithFixedDelay(PanelUpdate, PanelClockTick, displayRefreshPeriod)
 
   override def receive: Receive = {
-    case PullNewMeasure =>
-      if (lastRequestIdResponded != requestId) log.warning(s"Previous request $requestId not fulfilled")
-      aggregator ! MeasureQuery(nextMeasureId(), panelController.targetMeasures)
-
-    case MeasureQueryResponse(requestIdResponse, measures) =>
-      panelController.setMeasures(measures)
-      lastRequestIdResponded = requestIdResponse
-
+    case NewMeasures(_, measures) => panelController.setMeasures(measures)
     case PanelClockTick => panelController.clockTick()
   }
 
@@ -46,10 +35,5 @@ class PanelActor(panelController: PanelController,
     panelController.shutdown()
     log.info(s"Shutdown display panel - end")
   }
-
-  private var lastRequestIdResponded: Long = 0
-
-  private var requestId: Long = 0
-  def nextMeasureId() : Long = { requestId += 1; requestId }
 
 }

@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.measure.source
+package org.digitalpanda.iot.actors.measure.source
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Timers}
 import org.digitalpanda.iot.MeasureType.MeasureType
@@ -9,12 +9,12 @@ import scala.concurrent.duration.FiniteDuration
 
 abstract class SourceActor(samplingPeriod: FiniteDuration,
                            targetMeasures : List[(Location, MeasureType)],
-                           aggregator: ActorRef) extends Actor with ActorLogging with Timers {
+                           consumer: ActorRef) extends Actor with ActorLogging with Timers {
 
   timers.startTimerWithFixedDelay(MeasurePush, PushNewMeasure, samplingPeriod)
 
   override def receive: Receive = {
-    case PushNewMeasure => aggregator ! sampleNewMeasures(nextMeasureId())
+    case PushNewMeasure => consumer ! sampleNewMeasures(nextMeasureId())
     case message => log.warning(s"A measure source actor should not receive any external message.\nReceived: $message")
   }
 

@@ -1,4 +1,4 @@
-package org.digitalpanda.iot.measure.aggregator
+package org.digitalpanda.iot.actors.measure.aggregator
 
 import akka.actor.{Actor, ActorLogging, Props}
 import org.digitalpanda.iot.MeasureType.MeasureType
